@@ -9,6 +9,7 @@ import com.example.customerportal.viewmodels.CustomerViewModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ public class CustomerServiceImplementation implements CustomerService {
                     BeanUtils.copyProperties(c, viewModel);
                     return viewModel;
                 })
+                .sorted(Comparator.comparing(CustomerViewModel::getId))
                 .collect(Collectors.toList());
     }
 
@@ -68,11 +70,29 @@ public class CustomerServiceImplementation implements CustomerService {
 
     @Override
     public void update(int id, CustomerUpdateViewModel viewModel) {
+        //  check if id exists and get the entity from database
+        Optional<Customer> customerOptional = repository.findById(id);
+        Customer customer = customerOptional.orElseThrow(
+                () -> new RecordNotFoundException(String.format("Could not find the customer with id: %d", id))
+        );
 
+        //  copy the new values
+        customer.setFirstName(viewModel.getFirstName());
+        customer.setLastName(viewModel.getLastName());
+
+        //  save and flush
+        repository.saveAndFlush(customer);
     }
 
     @Override
     public void delete(int id) {
+//        repository.deleteById(id);
 
+        Optional<Customer> customerOptional = repository.findById(id);
+        Customer customer = customerOptional.orElseThrow(
+                () -> new RecordNotFoundException(String.format("Could not find the customer with id: %d", id))
+        );
+
+        repository.delete(customer);
     }
 }
