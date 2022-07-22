@@ -6,6 +6,7 @@ import com.example.customerportal.services.CustomerService;
 import com.example.customerportal.viewmodels.CustomerViewModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,6 +33,32 @@ public class CustomerApi {
                           true,
                           customerService.get()
                   )
+        );
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<IServerResponseWithBody<CustomerViewModel>> getById(@PathVariable int id) {
+        return ResponseEntity.ok(
+                responseFactory
+                        .getServerResponseWithBody(
+                                200,
+                                String.format("Customer with id: %d", id),
+                                true,
+                                customerService.get(id)
+                        )
+        );
+    }
+
+    @GetMapping("by-email/{email}")
+    public ResponseEntity<IServerResponseWithBody<CustomerViewModel>> getByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(
+                responseFactory
+                        .getServerResponseWithBody(
+                                200,
+                                String.format("Customer with email: %s", email),
+                                true,
+                                customerService.get(email)
+                        )
         );
     }
 }
