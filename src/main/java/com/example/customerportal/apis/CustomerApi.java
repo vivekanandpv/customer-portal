@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/customers")
+@CrossOrigin
 public class CustomerApi {
     private final IServerResponseFactory responseFactory;
     private final CustomerService customerService;
