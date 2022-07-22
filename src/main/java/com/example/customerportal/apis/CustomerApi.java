@@ -2,13 +2,13 @@ package com.example.customerportal.apis;
 
 import com.example.customerportal.response.interfaces.factory.IServerResponseFactory;
 import com.example.customerportal.response.interfaces.infra.IServerResponseWithBody;
+import com.example.customerportal.response.interfaces.infra.IServerResponseWithoutBody;
 import com.example.customerportal.services.CustomerService;
+import com.example.customerportal.viewmodels.CustomerCreateViewModel;
+import com.example.customerportal.viewmodels.CustomerUpdateViewModel;
 import com.example.customerportal.viewmodels.CustomerViewModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,13 +26,13 @@ public class CustomerApi {
     @GetMapping
     public ResponseEntity<IServerResponseWithBody<List<CustomerViewModel>>> getAll() {
         return ResponseEntity.ok(
-          responseFactory
-                  .getServerResponseWithBody(
-                          200,
-                          "Customer list",
-                          true,
-                          customerService.get()
-                  )
+                responseFactory
+                        .getServerResponseWithBody(
+                                200,
+                                "Customer list",
+                                true,
+                                customerService.get()
+                        )
         );
     }
 
@@ -61,4 +61,44 @@ public class CustomerApi {
                         )
         );
     }
+
+    @PostMapping
+    public ResponseEntity<IServerResponseWithBody<CustomerViewModel>> create(@RequestBody CustomerCreateViewModel viewModel) {
+        return ResponseEntity.ok(
+                responseFactory
+                        .getServerResponseWithBody(
+                                201,
+                                "New customer created",
+                                true,
+                                customerService.create(viewModel)
+                        )
+        );
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<IServerResponseWithoutBody> update(@RequestBody CustomerUpdateViewModel viewModel, @PathVariable int id) {
+        customerService.update(id, viewModel);
+        return ResponseEntity.ok(
+                responseFactory
+                        .getServerResponseWithoutBody(
+                                201,
+                                String.format("Updated customer with id: %d", id),
+                                true
+                        )
+        );
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<IServerResponseWithoutBody> delete(@PathVariable int id) {
+        customerService.delete(id);
+        return ResponseEntity.ok(
+                responseFactory
+                        .getServerResponseWithoutBody(
+                                200,
+                                String.format("Deleted customer with id: %d", id),
+                                true
+                        )
+        );
+    }
+
 }
