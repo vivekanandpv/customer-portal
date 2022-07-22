@@ -60,7 +60,10 @@ public class CustomerServiceImplementation implements CustomerService {
 
     @Override
     public CustomerViewModel create(CustomerCreateViewModel viewModel) {
-        return null;
+        Customer customer = new Customer();
+        BeanUtils.copyProperties(viewModel, customer);
+        repository.saveAndFlush(customer);
+        return get(customer.getId());
     }
 
     @Override
