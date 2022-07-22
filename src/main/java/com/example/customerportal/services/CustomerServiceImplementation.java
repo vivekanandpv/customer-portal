@@ -1,12 +1,17 @@
 package com.example.customerportal.services;
 
+import com.example.customerportal.exceptions.RecordNotFoundException;
+import com.example.customerportal.models.Customer;
 import com.example.customerportal.repositories.CustomerRepository;
 import com.example.customerportal.viewmodels.CustomerCreateViewModel;
 import com.example.customerportal.viewmodels.CustomerUpdateViewModel;
 import com.example.customerportal.viewmodels.CustomerViewModel;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImplementation implements CustomerService {
@@ -18,17 +23,39 @@ public class CustomerServiceImplementation implements CustomerService {
 
     @Override
     public List<CustomerViewModel> get() {
-        return null;
+        return repository
+                .findAll()
+                .stream()
+                .map(c -> {
+                    CustomerViewModel viewModel = new CustomerViewModel();
+                    BeanUtils.copyProperties(c, viewModel);
+                    return viewModel;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public CustomerViewModel get(int id) {
-        return null;
+        Optional<Customer> customerOptional = repository.findById(id);
+        Customer customer = customerOptional.orElseThrow(
+                () -> new RecordNotFoundException(String.format("Could not find the customer with id: %d", id))
+        );
+
+        CustomerViewModel viewModel = new CustomerViewModel();
+        BeanUtils.copyProperties(customer, viewModel);
+        return viewModel;
     }
 
     @Override
     public CustomerViewModel get(String email) {
-        return null;
+        Optional<Customer> customerOptional = repository.findCustomerByEmail(email);
+        Customer customer = customerOptional.orElseThrow(
+                () -> new RecordNotFoundException(String.format("Could not find the customer with email: %s", email))
+        );
+
+        CustomerViewModel viewModel = new CustomerViewModel();
+        BeanUtils.copyProperties(customer, viewModel);
+        return viewModel;
     }
 
     @Override
